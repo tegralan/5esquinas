@@ -217,6 +217,45 @@ tr:last-child td{border-bottom:none}
 .est-card-adm.vacio .ec-badge { color:var(--muted); }
 .est-edit-hint { font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px; }
 
+
+/* PARTES PAGO */
+.parte-row {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.parte-row-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.parte-remove {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+}
+.parte-remove:active { color: var(--accent3); }
+.parte-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.parte-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -350,8 +389,8 @@ tr:last-child td{border-bottom:none}
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="showPage('deptos',this)"><span class="nav-icon">⊞</span><span class="nav-label">Deptos</span></button>
-  <button class="nav-btn" onclick="showPage('analisis',this)"><span class="nav-icon">◈</span><span class="nav-label">Análisis</span></button>
   <button class="nav-btn" onclick="showPage('gastos',this)"><span class="nav-icon">↓</span><span class="nav-label">Gastos</span></button>
+  <button class="nav-btn" onclick="showPage('analisis',this)"><span class="nav-icon">◈</span><span class="nav-label">Análisis</span></button>
   <button class="nav-btn" onclick="showPage('socios',this)"><span class="nav-icon">◉</span><span class="nav-label">Socios</span></button>
   <button class="nav-btn" onclick="showPage('deudores',this)"><span class="nav-icon">⚠</span><span class="nav-label">Deudores</span></button>
   <button class="nav-btn" onclick="showPage('trimestral',this)"><span class="nav-icon">≋</span><span class="nav-label">Trimestre</span></button>
@@ -379,17 +418,55 @@ tr:last-child td{border-bottom:none}
     <!-- PAGOS -->
     <div class="admin-section active" id="admin-pagos">
       <div class="summary-mini" id="admin-summary"></div>
-      <div class="form-group"><label class="form-label">Mes</label><select class="form-select" id="pago-mes" onchange="updateDeptoSelect();updateSummary()"><option value="ENERO">Enero</option><option value="FEBRERO">Febrero</option><option value="MARZO" selected>Marzo</option></select></div>
-      <div class="form-group"><label class="form-label">Departamento</label><select class="form-select" id="pago-depto"></select></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Importe ($)</label><input type="number" class="form-input" id="pago-importe" placeholder="460000" inputmode="numeric"></div>
-        <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="pago-fecha"></div>
+        <div class="form-group"><label class="form-label">Mes</label><select class="form-select" id="pago-mes" onchange="updateDeptoSelect();updateSummary()"><option value="ENERO">Enero</option><option value="FEBRERO">Febrero</option><option value="MARZO" selected>Marzo</option></select></div>
+        <div class="form-group"><label class="form-label">Departamento</label><select class="form-select" id="pago-depto"></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Destinatario</label><select class="form-select" id="pago-dest"><option value="DANI">DANI</option><option value="FEDE">FEDE</option><option value="MACHE">MACHE</option><option value="EFECTIVO">EFECTIVO</option></select></div>
+        <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="pago-fecha"></div>
         <div class="form-group"><label class="form-label">Deuda restante ($)</label><input type="number" class="form-input" id="pago-adeuda" placeholder="0" inputmode="numeric"></div>
       </div>
-      <div class="form-group"><label class="form-label">Observación</label><input type="text" class="form-input" id="pago-obs" placeholder="Ej: pago parcial..."></div>
+
+      <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(200,169,110,.3)">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:10px">PARTE 1</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Importe ($)</label><input type="number" class="form-input" id="pago-importe-1" placeholder="460000" inputmode="numeric" oninput="calcTotal()"></div>
+          <div class="form-group"><label class="form-label">Destinatario</label><select class="form-select" id="pago-dest-1"><option value="DANI">DANI</option><option value="FEDE">FEDE</option><option value="MACHE" selected>MACHE</option><option value="EFECTIVO">EFECTIVO</option></select></div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px">PARTE 2 <span style="font-size:8px">(opcional)</span></div>
+          <button onclick="toggleParte(2)" id="toggle-2" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:10px;padding:3px 9px;font-family:'DM Mono',monospace;cursor:pointer">+ ADD</button>
+        </div>
+        <div id="fields-2" style="display:none">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Importe ($)</label><input type="number" class="form-input" id="pago-importe-2" placeholder="0" inputmode="numeric" oninput="calcTotal()"></div>
+            <div class="form-group"><label class="form-label">Destinatario</label><select class="form-select" id="pago-dest-2"><option value="DANI">DANI</option><option value="FEDE" selected>FEDE</option><option value="MACHE">MACHE</option><option value="EFECTIVO">EFECTIVO</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px">PARTE 3 <span style="font-size:8px">(opcional)</span></div>
+          <button onclick="toggleParte(3)" id="toggle-3" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:10px;padding:3px 9px;font-family:'DM Mono',monospace;cursor:pointer">+ ADD</button>
+        </div>
+        <div id="fields-3" style="display:none">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Importe ($)</label><input type="number" class="form-input" id="pago-importe-3" placeholder="0" inputmode="numeric" oninput="calcTotal()"></div>
+            <div class="form-group"><label class="form-label">Destinatario</label><select class="form-select" id="pago-dest-3"><option value="DANI">DANI</option><option value="FEDE">FEDE</option><option value="MACHE">MACHE</option><option value="EFECTIVO" selected>EFECTIVO</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(200,169,110,.08);border:1px solid rgba(200,169,110,.25);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px">TOTAL PAGO</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent)" id="pago-total-display">$0</div>
+      </div>
+
+      <div class="form-group"><label class="form-label">Observación</label><input type="text" class="form-input" id="pago-obs" placeholder="Ej: pago parcial, nuevo inquilino..."></div>
       <button class="btn-primary" onclick="registrarPago()">✓ REGISTRAR PAGO</button>
       <div id="pagos-log"></div>
     </div>
@@ -502,11 +579,24 @@ function showPage(page,el){document.querySelectorAll('.page-view').forEach(p=>p.
 function setMonth(m,el){currentMonth=m;document.querySelectorAll('.month-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderAll();}
 
 function calcLiq(mes,resumen){const g=resumen.gastos;const saldo=resumen.cobrado-resumen.totalGastos;const parte=saldo/3;const alqF=(resumen.otros&&resumen.otros.alquilerFede)||g.alquilerFede||300000;const inet=(resumen.otros&&resumen.otros.internetFede)||g.internetFede||0;const mant=g.mantenimiento||0;let lD,lF,lM;if(mes==='MARZO'){const imp=(g.luz||0)+(g.aysa||0)+(g.impMuni||0);lD=parte+alqF/2-inet/3-mant/2;lF=parte-alqF+inet*(2/3)-mant/2;lM=parte+alqF/2-inet/3+imp+mant;}else if(mes==='FEBRERO'){const imp=(g.luz||0)+(g.aysa||0)+(g.impMuni||0);lD=parte+alqF/2-inet/3-mant/2;lF=parte-alqF-inet*(2/3)-mant/2;lM=parte+alqF/2-inet/3+imp+mant;}else if(mes==='ENERO'){const cuota=(resumen.otros&&resumen.otros.cuotaEasyDani)||g.cuotaEasyDani||50000;const e23=(g.aysa||0)+(g.impMuni||0);lD=parte+cuota*(2/3)+alqF/2-inet/3;lF=parte-alqF-cuota/3+inet*(2/3);lM=parte-cuota/3+alqF/2-inet/3+e23;}else{const imp=(g.luz||0)+(g.aysa||0)+(g.impMuni||0);lD=parte+alqF/2-inet/3-mant/2;lF=parte-alqF+inet*(2/3)-mant/2;lM=parte+alqF/2-inet/3+imp+mant;}return{DANIEL:lD,FEDERICO:lF,MARCELO:lM,saldo,parte};}
-function calcSumif(deptos,socio){let t=0;deptos.forEach(d=>{if((d.dest||'').toUpperCase().includes(socio))t+=(typeof d.importe==='number'?d.importe:0);if((d.dest2||'').toUpperCase().includes(socio))t+=(typeof d.importe2==='number'?d.importe2:0);});return t;}
+function calcSumif(deptos,socio){
+  let t=0;
+  deptos.forEach(d=>{
+    // If has pagoParts (split payments), use those for accuracy
+    if(d.pagoParts && d.pagoParts.length) {
+      d.pagoParts.forEach(p=>{ if(p.dest && p.dest.toUpperCase().includes(socio)) t+=p.imp; });
+    } else {
+      // Fallback to dest string
+      if((d.dest||'').toUpperCase().includes(socio))t+=(typeof d.importe==='number'?d.importe:0);
+      if((d.dest2||'').toUpperCase().includes(socio))t+=(typeof d.importe2==='number'?d.importe2:0);
+    }
+  });
+  return t;
+}
 
 function renderAll(){const d=DATA[currentMonth];if(!d)return;rAnalisis(d);rDeptos(d);rGastos(d);rSocios(d);rDeudores(d);rTrimestral();}
 
-function rDeptosGrid(id,deptos){const el=document.getElementById(id);if(!el)return;el.innerHTML=deptos.map(dep=>{const est=getEstado(dep);const hD=dep.adeuda&&dep.adeuda!=='-'&&dep.adeuda>0;const hC=typeof dep.importe==='number'&&dep.importe>0;return`<div class="depto-card ${est.cls}"><div class="depto-dot ${est.cls}"></div><div class="depto-num">${dep.n}</div><div class="depto-alq">${typeof dep.alquiler==='number'?fmtNum(dep.alquiler):'—'}</div>${hC?`<div class="depto-cobrado">↓${fmtNum(dep.importe)}</div>`:''} ${hD?`<div class="depto-adeuda">⚠${fmtNum(dep.adeuda)}</div>`:''} ${destBadge(dep.dest)||`<span class="dest-badge vacio">${est.label}</span>`}</div>`;}).join('');}
+function rDeptosGrid(id,deptos){const el=document.getElementById(id);if(!el)return;el.innerHTML=deptos.map(dep=>{const est=getEstado(dep);const hD=dep.adeuda&&dep.adeuda!=='-'&&dep.adeuda>0;const hC=typeof dep.importe==='number'&&dep.importe>0;return`<div class="depto-card ${est.cls}"><div class="depto-dot ${est.cls}"></div><div class="depto-num">${dep.n}</div><div class="depto-alq">${typeof dep.alquiler==='number'?fmtNum(dep.alquiler):'—'}</div>${hC?`<div class="depto-cobrado">↓${fmtNum(dep.importe)}</div>`:''} ${hD?`<div class="depto-adeuda">⚠${fmtNum(dep.adeuda)}</div>`:''} ${destBadge(dep.destLabel||dep.dest)||`<span class="dest-badge vacio">${est.label}</span>`}</div>`;}).join('');}
 
 function rAnalisis(d){const r=d.resumen;const vacios=d.deptos.filter(x=>x.estado==='V'||x.estado==='E').length;const deud=d.deptos.filter(x=>x.estado==='D'||(x.adeuda&&x.adeuda!=='-'&&x.adeuda>0)).length;document.getElementById('stats-grid').innerHTML=`<div class="stat-card green"><div class="stat-label">Cobrado</div><div class="stat-value green">${fmtNum(r.cobrado)}</div><div class="stat-meta">ingresos del mes</div></div><div class="stat-card red"><div class="stat-label">Gastos</div><div class="stat-value red">${fmtNum(r.totalGastos)}</div><div class="stat-meta">egresos del mes</div></div><div class="stat-card gold"><div class="stat-label">Saldo</div><div class="stat-value gold">${fmtNum(r.saldoDelMes)}</div><div class="stat-meta">para distribuir</div></div><div class="stat-card blue"><div class="stat-label">Vacíos</div><div class="stat-value blue">${vacios}</div><div class="stat-meta">${deud} con deuda</div></div>`;
 const meses=['ENERO','FEBRERO','MARZO'];const maxV=Math.max(...meses.map(m=>DATA[m].resumen.cobrado));document.getElementById('tri-chart').innerHTML=meses.map(m=>{const mr=DATA[m].resumen;const eH=Math.round(mr.cobrado/maxV*80);const sH=Math.round(mr.totalGastos/maxV*80);const lH=Math.round(mr.saldoDelMes/maxV*80);return`<div class="tri-group"><div class="tri-bars-inner"><div class="tri-bar entrada" style="height:${eH}px"></div><div class="tri-bar salida" style="height:${sH}px"></div><div class="tri-bar saldo" style="height:${lH}px"></div></div><div class="tri-mes">${m.substring(0,3)}</div></div>`;}).join('');
@@ -542,7 +632,174 @@ function updateDeptoSelect(){const mes=document.getElementById('pago-mes').value
 function updateSummary(){const mes=document.getElementById('pago-mes')?.value||currentMonth;if(!DATA[mes])return;const r=DATA[mes].resumen;const nd=DATA[mes].deptos.filter(d=>d.adeuda&&d.adeuda!=='-'&&d.adeuda>0).length;document.getElementById('admin-summary').innerHTML=`<div><div class="summary-mini-val" style="color:var(--accent2)">${fmtNum(r.cobrado)}</div><div class="summary-mini-label">COBRADO</div></div><div><div class="summary-mini-val" style="color:var(--accent3)">${fmtNum(r.totalGastos)}</div><div class="summary-mini-label">GASTOS</div></div><div><div class="summary-mini-val" style="color:var(--accent3)">${nd}</div><div class="summary-mini-label">DEUDORES</div></div>`;}
 function toggleOtro(){document.getElementById('gasto-otro-wrap').style.display=document.getElementById('gasto-tipo').value==='otro'?'block':'none';}
 
-function registrarPago(){const mes=document.getElementById('pago-mes').value;const deptoN=document.getElementById('pago-depto').value;const importe=parseInt(document.getElementById('pago-importe').value);const fecha=document.getElementById('pago-fecha').value;const dest=document.getElementById('pago-dest').value;const adeuda=parseInt(document.getElementById('pago-adeuda').value)||0;const obs=document.getElementById('pago-obs').value;if(!importe||importe<=0){showToast('Importe inválido',true);return;}const dep=DATA[mes].deptos.find(d=>d.n===deptoN);if(!dep){showToast('Depto no encontrado',true);return;}dep.importe=(typeof dep.importe==='number'?dep.importe:0)+importe;if(fecha)dep.fecha=new Date(fecha).toLocaleDateString('es-AR');dep.dest=dest;dep.adeuda=adeuda>0?adeuda:'-';dep.estado=adeuda>0?'D':'';if(obs)dep.obs=obs;DATA[mes].resumen.cobrado+=importe;DATA[mes].resumen.saldoDelMes=DATA[mes].resumen.cobrado-DATA[mes].resumen.totalGastos;const lc=calcLiq(mes,DATA[mes].resumen);Object.keys(DATA[mes].resumen.liq).forEach(s=>{DATA[mes].resumen.liq[s].liq=lc[s];});saveData();addHist({tipo:'pago',desc:`Pago depto ${deptoN} → ${dest}`,amount:importe,mes});document.getElementById('pago-importe').value='';document.getElementById('pago-adeuda').value='';document.getElementById('pago-obs').value='';updateSummary();rPagosLog();renderAll();showToast(`✓ ${fmtNum(importe)} en ${deptoN}`);}
+
+// ── PARTES DE PAGO ────────────────────────────
+let partesCount = 0;
+
+function iniciarPartes() {
+  partesCount = 0;
+  document.getElementById('partes-container').innerHTML = '';
+  agregarParte(); // start with one part
+}
+
+function agregarParte() {
+  partesCount++;
+  const id = partesCount;
+  const div = document.createElement('div');
+  div.className = 'parte-row';
+  div.id = 'parte-' + id;
+  div.innerHTML = `
+    <div class="parte-num">PARTE ${id}</div>
+    ${id > 1 ? `<button class="parte-remove" onclick="eliminarParte(${id})">✕</button>` : ''}
+    <div class="parte-row-inner">
+      <div>
+        <div class="parte-label">Destinatario</div>
+        <select class="form-select" id="parte-dest-${id}" style="font-size:13px;padding:9px 30px 9px 10px">
+          <option value="MACHE">MACHE</option>
+          <option value="DANI">DANI</option>
+          <option value="FEDE">FEDE</option>
+          <option value="EFECTIVO">EFECTIVO</option>
+        </select>
+      </div>
+      <div>
+        <div class="parte-label">Importe ($)</div>
+        <input type="number" class="form-input" id="parte-imp-${id}" placeholder="0" inputmode="numeric" oninput="actualizarTotal()" style="padding:9px 10px">
+      </div>
+    </div>`;
+  document.getElementById('partes-container').appendChild(div);
+  actualizarTotal();
+}
+
+function eliminarParte(id) {
+  const el = document.getElementById('parte-' + id);
+  if(el) el.remove();
+  actualizarTotal();
+}
+
+function actualizarTotal() {
+  let total = 0;
+  document.querySelectorAll('[id^="parte-imp-"]').forEach(inp => {
+    total += parseInt(inp.value) || 0;
+  });
+  document.getElementById('pago-total-display').textContent = '$' + total.toLocaleString('es-AR');
+}
+
+function getPartes() {
+  const partes = [];
+  document.querySelectorAll('[id^="parte-imp-"]').forEach(inp => {
+    const num = inp.id.replace('parte-imp-','');
+    const imp = parseInt(inp.value) || 0;
+    const dest = document.getElementById('parte-dest-'+num)?.value || '';
+    if(imp > 0) partes.push({ dest, imp });
+  });
+  return partes;
+}
+
+function toggleParte(n){
+  const fields=document.getElementById('fields-'+n);
+  const btn=document.getElementById('toggle-'+n);
+  const visible=fields.style.display!=='none';
+  fields.style.display=visible?'none':'block';
+  btn.textContent=visible?'+ ADD':'− QUITAR';
+  if(visible){document.getElementById('pago-importe-'+n).value='';}
+  calcTotal();
+}
+
+function calcTotal(){
+  let t=0;
+  [1,2,3].forEach(n=>{
+    const el=document.getElementById('pago-importe-'+n);
+    if(el&&el.style.display!=='none'||n===1){
+      const v=parseInt(el?el.value:0)||0;
+      t+=v;
+    }
+  });
+  // check visibility of parts 2 and 3
+  const f2=document.getElementById('fields-2');
+  const f3=document.getElementById('fields-3');
+  let total=parseInt(document.getElementById('pago-importe-1').value)||0;
+  if(f2&&f2.style.display!=='none') total+=(parseInt(document.getElementById('pago-importe-2').value)||0);
+  if(f3&&f3.style.display!=='none') total+=(parseInt(document.getElementById('pago-importe-3').value)||0);
+  const el=document.getElementById('pago-total-display');
+  if(el) el.textContent=total>0?('$'+total.toLocaleString('es-AR')):'$0';
+}
+
+function registrarPago(){
+  const mes=document.getElementById('pago-mes').value;
+  const deptoN=document.getElementById('pago-depto').value;
+  const fecha=document.getElementById('pago-fecha').value;
+  const adeuda=parseInt(document.getElementById('pago-adeuda').value)||0;
+  const obs=document.getElementById('pago-obs').value;
+
+  // Collect all parts
+  const partes=[];
+  const f2=document.getElementById('fields-2');
+  const f3=document.getElementById('fields-3');
+  const imp1=parseInt(document.getElementById('pago-importe-1').value)||0;
+  const dest1=document.getElementById('pago-dest-1').value;
+  if(imp1>0) partes.push({importe:imp1,dest:dest1});
+  if(f2&&f2.style.display!=='none'){
+    const imp2=parseInt(document.getElementById('pago-importe-2').value)||0;
+    const dest2=document.getElementById('pago-dest-2').value;
+    if(imp2>0) partes.push({importe:imp2,dest:dest2});
+  }
+  if(f3&&f3.style.display!=='none'){
+    const imp3=parseInt(document.getElementById('pago-importe-3').value)||0;
+    const dest3=document.getElementById('pago-dest-3').value;
+    if(imp3>0) partes.push({importe:imp3,dest:dest3});
+  }
+
+  if(partes.length===0){showToast('Ingresá al menos un importe',true);return;}
+  const totalPago=partes.reduce((s,p)=>s+p.importe,0);
+
+  const dep=DATA[mes].deptos.find(d=>d.n===deptoN);
+  if(!dep){showToast('Depto no encontrado',true);return;}
+
+  // Build dest string and update dep
+  const destStr=partes.map(p=>p.dest).join('/');
+  dep.importe=(typeof dep.importe==='number'?dep.importe:0)+totalPago;
+  if(fecha) dep.fecha=new Date(fecha).toLocaleDateString('es-AR');
+  dep.dest=destStr;
+  // Store individual parts for SUMIF
+  dep.importe=totalPago; // total
+  if(partes[0]) { dep.dest=partes[0].dest; dep.importe=partes[0].importe; }
+  if(partes[1]) { dep.dest2=partes[1].dest; dep.importe2=partes[1].importe; }
+  if(partes[2]) { dep.dest3=partes[2].dest; dep.importe3=partes[2].importe; }
+  // Combined dest label
+  dep.destLabel=partes.map(p=>p.dest).join('/');
+  dep.importeTotal=totalPago;
+  dep.adeuda=adeuda>0?adeuda:'-';
+  dep.estado=adeuda>0?'D':'';
+  if(obs) dep.obs=obs;
+
+  DATA[mes].resumen.cobrado+=totalPago;
+  DATA[mes].resumen.saldoDelMes=DATA[mes].resumen.cobrado-DATA[mes].resumen.totalGastos;
+  const lc=calcLiq(mes,DATA[mes].resumen);
+  Object.keys(DATA[mes].resumen.liq).forEach(s=>{DATA[mes].resumen.liq[s].liq=lc[s];});
+
+  const histDesc=partes.map(p=>`${p.dest}: ${fmtNum(p.importe)}`).join(' + ');
+  saveData();
+  addHist({tipo:'pago',desc:`Depto ${deptoN} → ${histDesc}`,amount:totalPago,mes});
+
+  // Reset form
+  document.getElementById('pago-importe-1').value='';
+  document.getElementById('pago-importe-2').value='';
+  document.getElementById('pago-importe-3').value='';
+  document.getElementById('pago-adeuda').value='';
+  document.getElementById('pago-obs').value='';
+  // Hide optional parts
+  ['2','3'].forEach(n=>{
+    const f=document.getElementById('fields-'+n);
+    const b=document.getElementById('toggle-'+n);
+    if(f){f.style.display='none';}
+    if(b){b.textContent='+ ADD';}
+  });
+  calcTotal();
+  updateSummary();
+  rPagosLog();
+  renderAll();
+  showToast(`✓ ${fmtNum(totalPago)} registrado en ${deptoN}`);
+}
 
 function registrarGasto(){const mes=document.getElementById('gasto-mes').value;const tipo=document.getElementById('gasto-tipo').value;const importe=parseInt(document.getElementById('gasto-importe').value);const nota=document.getElementById('gasto-nota').value;const otroD=document.getElementById('gasto-otro-desc').value;if(!importe||importe<=0){showToast('Importe inválido',true);return;}if(tipo!=='otro')DATA[mes].resumen.gastos[tipo]=(DATA[mes].resumen.gastos[tipo]||0)+importe;DATA[mes].resumen.totalGastos+=importe;DATA[mes].resumen.saldoDelMes=DATA[mes].resumen.cobrado-DATA[mes].resumen.totalGastos;const lc=calcLiq(mes,DATA[mes].resumen);Object.keys(DATA[mes].resumen.liq).forEach(s=>{DATA[mes].resumen.liq[s].liq=lc[s];});saveData();addHist({tipo:'gasto',desc:`Gasto: ${tipo==='otro'?otroD:tipo}${nota?' — '+nota:''}`,amount:-importe,mes});document.getElementById('gasto-importe').value='';document.getElementById('gasto-nota').value='';document.getElementById('gasto-otro-desc').value='';rGastosLog();renderAll();showToast(`✓ Gasto ${fmtNum(importe)} registrado`);}
 
@@ -685,7 +942,7 @@ switchTab = function(tab, el) {
   }
 };
 
-document.addEventListener('DOMContentLoaded',()=>{loadData();updateDeptoSelect();updateSummary();const today=new Date().toISOString().split('T')[0];document.getElementById('pago-fecha').value=today;document.getElementById('gasto-fecha').value=today;const deptos=DATA['MARZO'].deptos.filter(d=>typeof d.alquiler==='number').map(d=>d.n);document.getElementById('config-depto-alq').innerHTML=deptos.map(d=>`<option value="${d}">${d}</option>`).join('');renderAll();});
+document.addEventListener('DOMContentLoaded',()=>{loadData();updateDeptoSelect();updateSummary();const today=new Date().toISOString().split('T')[0];document.getElementById('pago-fecha').value=today;document.getElementById('gasto-fecha').value=today;const deptos=DATA['MARZO'].deptos.filter(d=>typeof d.alquiler==='number').map(d=>d.n);document.getElementById('config-depto-alq').innerHTML=deptos.map(d=>`<option value="${d}">${d}</option>`).join('');iniciarPartes();renderAll();});
 </script>
 </body>
 </html>
