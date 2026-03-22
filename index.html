@@ -596,7 +596,7 @@ function calcSumif(deptos,socio){
 
 function renderAll(){const d=DATA[currentMonth];if(!d)return;rAnalisis(d);rDeptos(d);rGastos(d);rSocios(d);rDeudores(d);rTrimestral();}
 
-function rDeptosGrid(id,deptos){const el=document.getElementById(id);if(!el)return;el.innerHTML=deptos.map(dep=>{const est=getEstado(dep);const hD=dep.adeuda&&dep.adeuda!=='-'&&dep.adeuda>0;const hC=typeof dep.importe==='number'&&dep.importe>0;return`<div class="depto-card ${est.cls}"><div class="depto-dot ${est.cls}"></div><div class="depto-num">${dep.n}</div><div class="depto-alq">${typeof dep.alquiler==='number'?fmtNum(dep.alquiler):'—'}</div>${hC?`<div class="depto-cobrado">↓${fmtNum(dep.importe)}</div>`:''} ${hD?`<div class="depto-adeuda">⚠${fmtNum(dep.adeuda)}</div>`:''} ${destBadge(dep.destLabel||dep.dest)||`<span class="dest-badge vacio">${est.label}</span>`}</div>`;}).join('');}
+function rDeptosGrid(id,deptos){const el=document.getElementById(id);if(!el)return;el.innerHTML=deptos.map(dep=>{const est=getEstado(dep);const hD=dep.adeuda&&dep.adeuda!=='-'&&dep.adeuda>0;const hC=typeof dep.importe==='number'&&dep.importe>0;return`<div class="depto-card ${est.cls}" onclick="abrirEditorDepto('${dep.n}','${currentMonth}')" style="cursor:pointer"><div class="depto-dot ${est.cls}"></div><div class="depto-num">${dep.n}</div><div class="depto-alq">${typeof dep.alquiler==='number'?fmtNum(dep.alquiler):'—'}</div>${hC?`<div class="depto-cobrado">↓${fmtNum(dep.importe)}</div>`:''} ${hD?`<div class="depto-adeuda">⚠${fmtNum(dep.adeuda)}</div>`:''} ${destBadge(dep.destLabel||dep.dest)||`<span class="dest-badge vacio">${est.label}</span>`}</div>`;}).join('');}
 
 function rAnalisis(d){const r=d.resumen;const vacios=d.deptos.filter(x=>x.estado==='V'||x.estado==='E').length;const deud=d.deptos.filter(x=>x.estado==='D'||(x.adeuda&&x.adeuda!=='-'&&x.adeuda>0)).length;document.getElementById('stats-grid').innerHTML=`<div class="stat-card green"><div class="stat-label">Cobrado</div><div class="stat-value green">${fmtNum(r.cobrado)}</div><div class="stat-meta">ingresos del mes</div></div><div class="stat-card red"><div class="stat-label">Gastos</div><div class="stat-value red">${fmtNum(r.totalGastos)}</div><div class="stat-meta">egresos del mes</div></div><div class="stat-card gold"><div class="stat-label">Saldo</div><div class="stat-value gold">${fmtNum(r.saldoDelMes)}</div><div class="stat-meta">para distribuir</div></div><div class="stat-card blue"><div class="stat-label">Vacíos</div><div class="stat-value blue">${vacios}</div><div class="stat-meta">${deud} con deuda</div></div>`;
 const meses=['ENERO','FEBRERO','MARZO'];const maxV=Math.max(...meses.map(m=>DATA[m].resumen.cobrado));document.getElementById('tri-chart').innerHTML=meses.map(m=>{const mr=DATA[m].resumen;const eH=Math.round(mr.cobrado/maxV*80);const sH=Math.round(mr.totalGastos/maxV*80);const lH=Math.round(mr.saldoDelMes/maxV*80);return`<div class="tri-group"><div class="tri-bars-inner"><div class="tri-bar entrada" style="height:${eH}px"></div><div class="tri-bar salida" style="height:${sH}px"></div><div class="tri-bar saldo" style="height:${lH}px"></div></div><div class="tri-mes">${m.substring(0,3)}</div></div>`;}).join('');
@@ -818,6 +818,35 @@ function rGastosLog(){const h=getHist().filter(x=>x.tipo==='gasto').slice(0,5);c
 // ── ESTADOS MANAGEMENT ──────────────────────
 let editingDepto = null;
 let editingMes = null;
+
+
+function abrirEditorDepto(n, mes) {
+  // 1. Sync month in estados tab
+  const mesSel = document.getElementById('est-mes');
+  if(mesSel) mesSel.value = mes;
+
+  // 2. Open admin drawer
+  document.getElementById('admin-drawer').classList.add('open');
+  document.getElementById('admin-overlay').classList.add('open');
+
+  // 3. Switch to DEPTOS tab
+  const tabs = document.querySelectorAll('.drawer-tab');
+  const sections = document.querySelectorAll('.admin-section');
+  tabs.forEach(t => t.classList.remove('active'));
+  sections.forEach(s => s.classList.remove('active'));
+  // Find and activate estados tab
+  tabs.forEach(t => { if(t.textContent.trim()==='DEPTOS') t.classList.add('active'); });
+  document.getElementById('admin-estados').classList.add('active');
+
+  // 4. Load grid then select the depto
+  loadEstadosGrid();
+  setTimeout(() => {
+    selectDepto(n, mes);
+    // Scroll edit modal into view
+    const modal = document.getElementById('edit-modal');
+    if(modal) modal.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
+}
 
 function loadEstadosGrid() {
   const mes = document.getElementById('est-mes').value;
