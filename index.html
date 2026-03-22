@@ -667,6 +667,239 @@
     color: var(--muted);
     letter-spacing: 1px;
   }
+
+/* ===== ADMIN PANEL ===== */
+.admin-fab {
+  position: fixed;
+  bottom: 32px; right: 32px;
+  width: 52px; height: 52px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 4px 20px rgba(200,169,110,0.4);
+  z-index: 1000;
+  transition: all 0.2s;
+  border: none;
+  color: #111;
+}
+.admin-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(200,169,110,0.5); }
+
+.admin-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 500;
+  backdrop-filter: blur(4px);
+}
+.admin-overlay.open { display: block; }
+
+.admin-panel {
+  position: fixed;
+  top: 0; right: -520px; bottom: 0;
+  width: 500px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 600;
+  transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.admin-panel.open { right: 0; }
+
+.admin-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--accent);
+}
+.admin-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 20px; cursor: pointer; padding: 4px 8px;
+  border-radius: 4px; transition: color 0.2s;
+}
+.admin-close:hover { color: var(--text); }
+
+.admin-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+}
+.admin-tab {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 1px;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  background: none; border-top: none; border-left: none; border-right: none;
+}
+.admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.admin-tab:hover:not(.active) { color: var(--text); }
+
+.admin-body {
+  flex: 1; overflow-y: auto; padding: 24px 28px;
+}
+
+.admin-section { display: none; }
+.admin-section.active { display: block; }
+
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.form-input, .form-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--accent); }
+.form-select option { background: var(--surface2); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.btn-primary {
+  width: 100%;
+  background: var(--accent);
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.btn-danger {
+  background: rgba(224,112,112,0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(224,112,112,0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-danger:hover { background: rgba(224,112,112,0.25); }
+
+.admin-log {
+  margin-top: 24px;
+}
+.log-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.log-item:last-child { border-bottom: none; }
+.log-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.log-dot.pago { background: var(--accent2); }
+.log-dot.gasto { background: var(--accent3); }
+.log-dot.nota { background: var(--accent4); }
+.log-info { flex: 1; }
+.log-desc { color: var(--text); }
+.log-meta { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+.log-amount { font-family: 'DM Mono', monospace; font-size: 12px; flex-shrink: 0; }
+.log-amount.pos { color: var(--accent2); }
+.log-amount.neg { color: var(--accent3); }
+
+.toast {
+  position: fixed;
+  bottom: 100px; right: 32px;
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--text);
+  z-index: 2000;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { border-color: var(--accent3); }
+
+.form-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+.summary-mini {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  text-align: center;
+}
+.summary-mini-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+}
+.summary-mini-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.admin-indicator {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 14px; height: 14px;
+  background: var(--accent3);
+  border-radius: 50%;
+  font-size: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-weight: bold;
+  display: none;
+}
+
 </style>
 </head>
 <body>
@@ -1415,5 +1648,529 @@ function renderTrimestral() {
 // Init
 renderAll();
 </script>
+
+<!-- ADMIN FAB -->
+<button class="admin-fab" onclick="toggleAdmin()" title="Panel de Administración">
+  ✎
+  <span class="admin-indicator" id="admin-indicator">!</span>
+</button>
+
+<!-- OVERLAY -->
+<div class="admin-overlay" id="admin-overlay" onclick="toggleAdmin()"></div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-header">
+    <div class="admin-header-title">Administración</div>
+    <button class="admin-close" onclick="toggleAdmin()">✕</button>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchAdminTab('pagos', this)">PAGOS</button>
+    <button class="admin-tab" onclick="switchAdminTab('gastos', this)">GASTOS</button>
+    <button class="admin-tab" onclick="switchAdminTab('config', this)">CONFIGURAR</button>
+    <button class="admin-tab" onclick="switchAdminTab('historial', this)">HISTORIAL</button>
+  </div>
+  <div class="admin-body">
+
+    <!-- TAB: PAGOS -->
+    <div class="admin-section active" id="admin-pagos">
+      <div class="summary-mini" id="admin-summary-mini"></div>
+      <div class="form-group">
+        <label class="form-label">Mes</label>
+        <select class="form-select" id="pago-mes">
+          <option value="ENERO">Enero</option>
+          <option value="FEBRERO">Febrero</option>
+          <option value="MARZO" selected>Marzo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Departamento</label>
+        <select class="form-select" id="pago-depto"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Importe cobrado ($)</label>
+          <input type="number" class="form-input" id="pago-importe" placeholder="460000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de pago</label>
+          <input type="date" class="form-input" id="pago-fecha">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Destinatario</label>
+          <select class="form-select" id="pago-dest">
+            <option value="DANI">DANI</option>
+            <option value="FEDE">FEDE</option>
+            <option value="MACHE">MACHE</option>
+            <option value="EFECTIVO">EFECTIVO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deuda pendiente ($)</label>
+          <input type="number" class="form-input" id="pago-adeuda" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observación (opcional)</label>
+        <input type="text" class="form-input" id="pago-obs" placeholder="Ej: Pago parcial, nuevo inquilino...">
+      </div>
+      <button class="btn-primary" onclick="registrarPago()">✓ REGISTRAR PAGO</button>
+
+      <div class="admin-log" id="pagos-log"></div>
+    </div>
+
+    <!-- TAB: GASTOS -->
+    <div class="admin-section" id="admin-gastos">
+      <div class="form-group">
+        <label class="form-label">Mes</label>
+        <select class="form-select" id="gasto-mes">
+          <option value="ENERO">Enero</option>
+          <option value="FEBRERO">Febrero</option>
+          <option value="MARZO" selected>Marzo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de gasto</label>
+        <select class="form-select" id="gasto-tipo">
+          <option value="luz">Luz</option>
+          <option value="aysa">AYSA</option>
+          <option value="impMuni">Impuestos Municipales</option>
+          <option value="limpieza">Limpieza</option>
+          <option value="lourdes">Pago a Lourdes</option>
+          <option value="gastosFact">Gastos con factura</option>
+          <option value="gastosSFact">Gastos sin factura</option>
+          <option value="mantenimiento">Mantenimiento</option>
+          <option value="devDeposito">Devolución depósito</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group" id="gasto-otro-group" style="display:none">
+        <label class="form-label">Descripción del gasto</label>
+        <input type="text" class="form-input" id="gasto-otro-desc" placeholder="Descripción...">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Importe ($)</label>
+          <input type="number" class="form-input" id="gasto-importe" placeholder="50000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input type="date" class="form-input" id="gasto-fecha">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notas (opcional)</label>
+        <input type="text" class="form-input" id="gasto-nota" placeholder="Ej: factura N° 12345...">
+      </div>
+      <button class="btn-primary" onclick="registrarGasto()">✓ REGISTRAR GASTO</button>
+
+      <div class="admin-log" id="gastos-log"></div>
+    </div>
+
+    <!-- TAB: CONFIGURAR -->
+    <div class="admin-section" id="admin-config">
+      <div class="form-group">
+        <label class="form-label">Agregar nuevo mes</label>
+        <select class="form-select" id="config-mes-nuevo">
+          <option value="ABRIL">Abril</option>
+          <option value="MAYO">Mayo</option>
+          <option value="JUNIO">Junio</option>
+          <option value="JULIO">Julio</option>
+          <option value="AGOSTO">Agosto</option>
+          <option value="SEPTIEMBRE">Septiembre</option>
+          <option value="OCTUBRE">Octubre</option>
+          <option value="NOVIEMBRE">Noviembre</option>
+          <option value="DICIEMBRE">Diciembre</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="agregarMes()" style="margin-bottom:20px">+ AGREGAR MES</button>
+
+      <hr class="form-divider">
+
+      <div class="form-group">
+        <label class="form-label">Modificar alquiler de un departamento</label>
+        <select class="form-select" id="config-depto-alq" style="margin-bottom:10px"></select>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nuevo alquiler ($)</label>
+            <input type="number" class="form-input" id="config-nuevo-alq" placeholder="400000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Desde mes</label>
+            <select class="form-select" id="config-alq-mes">
+              <option value="ENERO">Enero</option>
+              <option value="FEBRERO">Febrero</option>
+              <option value="MARZO" selected>Marzo</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="actualizarAlquiler()">✓ ACTUALIZAR ALQUILER</button>
+      </div>
+
+      <hr class="form-divider">
+
+      <div class="form-group">
+        <label class="form-label" style="color:var(--accent3)">⚠ Zona de peligro</label>
+        <button class="btn-primary" onclick="resetearDatos()" style="background:rgba(224,112,112,0.15);color:var(--accent3);border:1px solid rgba(224,112,112,0.3);margin-top:0">
+          RESETEAR TODOS LOS CAMBIOS
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: HISTORIAL -->
+    <div class="admin-section" id="admin-historial">
+      <div class="log-title">
+        Todos los cambios registrados
+        <button class="btn-danger" onclick="limpiarHistorial()">Limpiar</button>
+      </div>
+      <div id="historial-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// ADMIN PANEL
+// =============================================
+
+// Load saved data from localStorage
+function loadSavedData() {
+  const saved = localStorage.getItem('5esquinas_data');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      Object.assign(DATA, parsed);
+    } catch(e) {}
+  }
+}
+
+function saveData() {
+  localStorage.setItem('5esquinas_data', JSON.stringify(DATA));
+}
+
+function getHistorial() {
+  return JSON.parse(localStorage.getItem('5esquinas_historial') || '[]');
+}
+
+function saveHistorial(h) {
+  localStorage.setItem('5esquinas_historial', JSON.stringify(h));
+}
+
+function addHistorial(item) {
+  const h = getHistorial();
+  h.unshift({ ...item, ts: new Date().toLocaleString('es-AR') });
+  if (h.length > 100) h.pop();
+  saveHistorial(h);
+}
+
+// Init admin
+function initAdmin() {
+  loadSavedData();
+  updateDeptoSelects();
+  updateAdminSummary();
+  renderHistorial();
+  renderPagosLog();
+  renderGastosLog();
+
+  // Set today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('pago-fecha').value = today;
+  document.getElementById('gasto-fecha').value = today;
+
+  // Config depto select
+  const deptos = DATA['MARZO'].deptos.filter(d => d.alquiler && d.alquiler !== '-').map(d => d.n);
+  const sel = document.getElementById('config-depto-alq');
+  sel.innerHTML = deptos.map(d => `<option value="${d}">${d}</option>`).join('');
+
+  // Handle "otro" gasto type
+  document.getElementById('gasto-tipo').addEventListener('change', function() {
+    document.getElementById('gasto-otro-group').style.display = this.value === 'otro' ? 'block' : 'none';
+  });
+
+  // Month selects sync
+  document.getElementById('pago-mes').addEventListener('change', function() {
+    updateDeptoSelects();
+    updateAdminSummary();
+  });
+}
+
+function updateDeptoSelects() {
+  const mes = document.getElementById('pago-mes').value;
+  const deptos = DATA[mes] ? DATA[mes].deptos.filter(d => d.n && d.n !== 'T').map(d => d.n) : [];
+  const sel = document.getElementById('pago-depto');
+  sel.innerHTML = deptos.map(d => `<option value="${d}">${d}</option>`).join('');
+}
+
+function updateAdminSummary() {
+  const mes = document.getElementById('pago-mes')?.value || currentMonth;
+  if (!DATA[mes]) return;
+  const r = DATA[mes].resumen;
+  const deudores = DATA[mes].deptos.filter(d => d.adeuda && d.adeuda !== '-' && d.adeuda > 0).length;
+  document.getElementById('admin-summary-mini').innerHTML = `
+    <div>
+      <div class="summary-mini-val" style="color:var(--accent2)">${fmtNum(r.cobrado)}</div>
+      <div class="summary-mini-label">COBRADO</div>
+    </div>
+    <div>
+      <div class="summary-mini-val" style="color:var(--accent3)">${fmtNum(r.totalGastos)}</div>
+      <div class="summary-mini-label">GASTOS</div>
+    </div>
+    <div>
+      <div class="summary-mini-val" style="color:var(--accent3)">${deudores}</div>
+      <div class="summary-mini-label">DEUDORES</div>
+    </div>
+  `;
+}
+
+function toggleAdmin() {
+  const panel = document.getElementById('admin-panel');
+  const overlay = document.getElementById('admin-overlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    updateAdminSummary();
+    renderPagosLog();
+    renderGastosLog();
+    renderHistorial();
+  }
+}
+
+function switchAdminTab(tab, el) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('admin-' + tab).classList.add('active');
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+
+function registrarPago() {
+  const mes = document.getElementById('pago-mes').value;
+  const deptoN = document.getElementById('pago-depto').value;
+  const importe = parseInt(document.getElementById('pago-importe').value);
+  const fecha = document.getElementById('pago-fecha').value;
+  const dest = document.getElementById('pago-dest').value;
+  const adeuda = parseInt(document.getElementById('pago-adeuda').value) || 0;
+  const obs = document.getElementById('pago-obs').value;
+
+  if (!importe || importe <= 0) { showToast('Ingresá un importe válido', true); return; }
+  if (!deptoN) { showToast('Seleccioná un departamento', true); return; }
+
+  const depto = DATA[mes].deptos.find(d => d.n === deptoN);
+  if (!depto) { showToast('Departamento no encontrado', true); return; }
+
+  // Update depto
+  const oldImporte = depto.importe || 0;
+  depto.importe = (typeof oldImporte === 'number' ? oldImporte : 0) + importe;
+  depto.fecha = fecha ? new Date(fecha).toLocaleDateString('es-AR') : depto.fecha;
+  depto.dest = dest;
+  depto.adeuda = adeuda > 0 ? adeuda : '-';
+  depto.estado = adeuda > 0 ? 'D' : '';
+  if (obs) depto.obs = obs;
+
+  // Update resumen cobrado
+  DATA[mes].resumen.cobrado += importe;
+  DATA[mes].resumen.saldoDelMes = DATA[mes].resumen.cobrado - DATA[mes].resumen.totalGastos;
+
+  // Update liquidaciones (divide equally)
+  const liq = DATA[mes].resumen.liq;
+  const parte = DATA[mes].resumen.saldoDelMes / 3;
+  Object.keys(liq).forEach(s => { liq[s].liq = parte; });
+
+  saveData();
+  addHistorial({ tipo: 'pago', desc: `Pago depto ${deptoN} — ${dest}`, amount: importe, mes, obs });
+
+  // Reset form
+  document.getElementById('pago-importe').value = '';
+  document.getElementById('pago-adeuda').value = '';
+  document.getElementById('pago-obs').value = '';
+
+  updateAdminSummary();
+  renderPagosLog();
+  renderAll();
+  showToast(`✓ Pago de ${fmtNum(importe)} registrado en ${deptoN}`);
+}
+
+function registrarGasto() {
+  const mes = document.getElementById('gasto-mes').value;
+  const tipo = document.getElementById('gasto-tipo').value;
+  const importe = parseInt(document.getElementById('gasto-importe').value);
+  const fecha = document.getElementById('gasto-fecha').value;
+  const nota = document.getElementById('gasto-nota').value;
+  const otroDesc = document.getElementById('gasto-otro-desc').value;
+
+  if (!importe || importe <= 0) { showToast('Ingresá un importe válido', true); return; }
+
+  const desc = tipo === 'otro' ? (otroDesc || 'Gasto varios') : tipo;
+
+  // Update gastos
+  if (tipo !== 'otro') {
+    DATA[mes].resumen.gastos[tipo] = (DATA[mes].resumen.gastos[tipo] || 0) + importe;
+  }
+  DATA[mes].resumen.totalGastos += importe;
+  DATA[mes].resumen.saldoDelMes = DATA[mes].resumen.cobrado - DATA[mes].resumen.totalGastos;
+
+  // Update liq
+  const liq = DATA[mes].resumen.liq;
+  const parte = DATA[mes].resumen.saldoDelMes / 3;
+  Object.keys(liq).forEach(s => { liq[s].liq = parte; });
+
+  saveData();
+  addHistorial({ tipo: 'gasto', desc: `Gasto: ${desc}${nota ? ' — ' + nota : ''}`, amount: -importe, mes });
+
+  document.getElementById('gasto-importe').value = '';
+  document.getElementById('gasto-nota').value = '';
+  document.getElementById('gasto-otro-desc').value = '';
+
+  updateAdminSummary();
+  renderGastosLog();
+  renderAll();
+  showToast(`✓ Gasto de ${fmtNum(importe)} registrado`);
+}
+
+function agregarMes() {
+  const mes = document.getElementById('config-mes-nuevo').value;
+  if (DATA[mes]) { showToast('Ese mes ya existe', true); return; }
+
+  // Clone MARZO structure
+  const modelo = JSON.parse(JSON.stringify(DATA['MARZO']));
+  modelo.deptos.forEach(d => {
+    d.importe = 0; d.fecha = ''; d.adeuda = '-'; d.dest = ''; d.obs = ''; d.estado = '';
+  });
+  modelo.resumen.cobrado = 0;
+  modelo.resumen.totalGastos = 0;
+  modelo.resumen.saldoDelMes = 0;
+  Object.values(modelo.resumen.gastos).forEach((_, k) => { modelo.resumen.gastos[k] = 0; });
+  Object.values(modelo.resumen.liq).forEach(v => { v.cobrado = 0; v.liq = 0; v.resto = 0; });
+
+  DATA[mes] = modelo;
+
+  // Add to month tabs
+  const tabs = document.getElementById('month-tabs');
+  const btn = document.createElement('button');
+  btn.className = 'month-tab';
+  btn.textContent = mes.substring(0,3);
+  btn.onclick = () => setMonth(mes);
+  tabs.appendChild(btn);
+
+  // Add to selects
+  ['pago-mes','gasto-mes','config-alq-mes'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel) {
+      const opt = document.createElement('option');
+      opt.value = mes; opt.textContent = mes.charAt(0) + mes.slice(1).toLowerCase();
+      sel.appendChild(opt);
+    }
+  });
+
+  saveData();
+  addHistorial({ tipo: 'nota', desc: `Mes ${mes} agregado`, amount: 0, mes });
+  showToast(`✓ Mes ${mes} agregado correctamente`);
+}
+
+function actualizarAlquiler() {
+  const depto = document.getElementById('config-depto-alq').value;
+  const nuevoAlq = parseInt(document.getElementById('config-nuevo-alq').value);
+  const mes = document.getElementById('config-alq-mes').value;
+
+  if (!nuevoAlq || nuevoAlq <= 0) { showToast('Ingresá un alquiler válido', true); return; }
+
+  if (DATA[mes]) {
+    const d = DATA[mes].deptos.find(x => x.n === depto);
+    if (d) { d.alquiler = nuevoAlq; }
+  }
+
+  saveData();
+  addHistorial({ tipo: 'nota', desc: `Alquiler ${depto} actualizado a ${fmtNum(nuevoAlq)}`, amount: 0, mes });
+  renderAll();
+  showToast(`✓ Alquiler de ${depto} actualizado a ${fmtNum(nuevoAlq)}`);
+}
+
+function resetearDatos() {
+  if (!confirm('¿Seguro? Se van a perder todos los cambios guardados.')) return;
+  localStorage.removeItem('5esquinas_data');
+  localStorage.removeItem('5esquinas_historial');
+  location.reload();
+}
+
+function limpiarHistorial() {
+  if (!confirm('¿Limpiar el historial?')) return;
+  saveHistorial([]);
+  renderHistorial();
+}
+
+function renderHistorial() {
+  const h = getHistorial();
+  const el = document.getElementById('historial-list');
+  if (!h.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px">Sin cambios registrados aún</div>'; return; }
+  el.innerHTML = h.map(item => `
+    <div class="log-item">
+      <div class="log-dot ${item.tipo}"></div>
+      <div class="log-info">
+        <div class="log-desc">${item.desc}</div>
+        <div class="log-meta">${item.mes} · ${item.ts}</div>
+      </div>
+      ${item.amount ? `<div class="log-amount ${item.amount > 0 ? 'pos' : 'neg'}">${item.amount > 0 ? '+' : ''}${fmtNum(Math.abs(item.amount))}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderPagosLog() {
+  const h = getHistorial().filter(x => x.tipo === 'pago').slice(0, 8);
+  const el = document.getElementById('pagos-log');
+  if (!h.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="log-title">Últimos pagos registrados</div>
+    ${h.map(item => `
+      <div class="log-item">
+        <div class="log-dot pago"></div>
+        <div class="log-info">
+          <div class="log-desc">${item.desc}</div>
+          <div class="log-meta">${item.mes} · ${item.ts}</div>
+        </div>
+        <div class="log-amount pos">+${fmtNum(item.amount)}</div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderGastosLog() {
+  const h = getHistorial().filter(x => x.tipo === 'gasto').slice(0, 8);
+  const el = document.getElementById('gastos-log');
+  if (!h.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="log-title">Últimos gastos registrados</div>
+    ${h.map(item => `
+      <div class="log-item">
+        <div class="log-dot gasto"></div>
+        <div class="log-info">
+          <div class="log-desc">${item.desc}</div>
+          <div class="log-meta">${item.mes} · ${item.ts}</div>
+        </div>
+        <div class="log-amount neg">${fmtNum(Math.abs(item.amount))}</div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', function() {
+  initAdmin();
+});
+// Also init immediately in case DOMContentLoaded already fired
+if (document.readyState !== 'loading') initAdmin();
+</script>
+
 </body>
 </html>
