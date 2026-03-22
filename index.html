@@ -187,6 +187,36 @@ tr:last-child td{border-bottom:none}
   .bottom-nav{height:calc(var(--nav-h) + env(safe-area-inset-bottom));}
   .scroll-area{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));}
 }
+
+/* ESTADOS GRID ADMIN */
+.estados-grid-adm {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.est-card-adm {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 8px;
+  cursor: pointer;
+  transition: border-color .15s, transform .1s;
+  position: relative;
+}
+.est-card-adm:active { transform: scale(.95); }
+.est-card-adm.selected { border-color: var(--accent); background: rgba(200,169,110,.08); }
+.est-card-adm.vacio { opacity:.45; border-style:dashed; }
+.est-card-adm.deuda { border-color:rgba(224,112,112,.45); }
+.est-card-adm.pagado { border-color:rgba(126,184,164,.3); }
+.est-card-adm .ec-num { font-family:'DM Mono',monospace;font-size:9px;color:var(--muted); }
+.est-card-adm .ec-alq { font-family:'DM Serif Display',serif;font-size:12px;color:var(--text);margin-top:2px; }
+.est-card-adm .ec-badge { font-size:8px;font-family:'DM Mono',monospace;margin-top:3px; }
+.est-card-adm.pagado .ec-badge { color:var(--accent2); }
+.est-card-adm.deuda .ec-badge { color:var(--accent3); }
+.est-card-adm.vacio .ec-badge { color:var(--muted); }
+.est-edit-hint { font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px; }
+
 </style>
 </head>
 <body>
@@ -194,7 +224,7 @@ tr:last-child td{border-bottom:none}
 <div class="topbar">
   <div style="display:flex;align-items:center;">
     <div class="logo">5E</div>
-    <div class="topbar-title" id="topbar-title">Análisis</div>
+    <div class="topbar-title" id="topbar-title">Deptos</div>
   </div>
   <div class="month-pills">
     <button class="month-pill" onclick="setMonth('ENERO',this)">ENE</button>
@@ -206,7 +236,7 @@ tr:last-child td{border-bottom:none}
 <div class="scroll-area" id="scroll-area">
 
   <!-- ANÁLISIS -->
-  <div class="page-view active" id="page-analisis">
+  <div class="page-view" id="page-analisis">
     <div class="stat-grid" id="stats-grid"></div>
     <div class="card">
       <div class="card-title">Ingresos vs Gastos · Trimestre</div>
@@ -226,7 +256,7 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <!-- DEPTOS -->
-  <div class="page-view" id="page-deptos">
+  <div class="page-view active" id="page-deptos">
     <div class="depto-grid" id="deptos-grid"></div>
     <div class="section-title">Detalle completo</div>
     <div class="card table-wrap">
@@ -319,8 +349,8 @@ tr:last-child td{border-bottom:none}
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="showPage('analisis',this)"><span class="nav-icon">◈</span><span class="nav-label">Análisis</span></button>
-  <button class="nav-btn" onclick="showPage('deptos',this)"><span class="nav-icon">⊞</span><span class="nav-label">Deptos</span></button>
+  <button class="nav-btn active" onclick="showPage('deptos',this)"><span class="nav-icon">⊞</span><span class="nav-label">Deptos</span></button>
+  <button class="nav-btn" onclick="showPage('analisis',this)"><span class="nav-icon">◈</span><span class="nav-label">Análisis</span></button>
   <button class="nav-btn" onclick="showPage('gastos',this)"><span class="nav-icon">↓</span><span class="nav-label">Gastos</span></button>
   <button class="nav-btn" onclick="showPage('socios',this)"><span class="nav-icon">◉</span><span class="nav-label">Socios</span></button>
   <button class="nav-btn" onclick="showPage('deudores',this)"><span class="nav-icon">⚠</span><span class="nav-label">Deudores</span></button>
@@ -340,6 +370,7 @@ tr:last-child td{border-bottom:none}
   </div>
   <div class="drawer-tabs">
     <button class="drawer-tab active" onclick="switchTab('pagos',this)">PAGOS</button>
+    <button class="drawer-tab" onclick="switchTab('estados',this)">DEPTOS</button>
     <button class="drawer-tab" onclick="switchTab('gastos-adm',this)">GASTOS</button>
     <button class="drawer-tab" onclick="switchTab('config',this)">CONFIG</button>
     <button class="drawer-tab" onclick="switchTab('historial',this)">HISTORIAL</button>
@@ -361,6 +392,66 @@ tr:last-child td{border-bottom:none}
       <div class="form-group"><label class="form-label">Observación</label><input type="text" class="form-input" id="pago-obs" placeholder="Ej: pago parcial..."></div>
       <button class="btn-primary" onclick="registrarPago()">✓ REGISTRAR PAGO</button>
       <div id="pagos-log"></div>
+    </div>
+    <!-- ESTADOS -->
+    <div class="admin-section" id="admin-estados">
+      <div class="summary-mini" id="estados-summary"></div>
+      <div class="form-group">
+        <label class="form-label">Mes</label>
+        <select class="form-select" id="est-mes" onchange="loadEstadosGrid()">
+          <option value="ENERO">Enero</option>
+          <option value="FEBRERO">Febrero</option>
+          <option value="MARZO" selected>Marzo</option>
+        </select>
+      </div>
+      <div id="estados-grid-admin"></div>
+      <!-- MODAL EDICION -->
+      <div id="edit-modal" style="display:none;margin-top:12px;background:var(--surface2);border:1px solid var(--accent);border-radius:14px;padding:14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:12px">EDITANDO DEPTO <span id="edit-depto-num" style="color:var(--text)"></span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-select" id="edit-estado">
+              <option value="">Ocupado / Pagó</option>
+              <option value="V">Vacío</option>
+              <option value="D">Con Deuda</option>
+              <option value="E">Exclusivo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destinatario</label>
+            <select class="form-select" id="edit-dest">
+              <option value="DANI">DANI</option>
+              <option value="FEDE">FEDE</option>
+              <option value="MACHE">MACHE</option>
+              <option value="EFECTIVO">EFECTIVO</option>
+              <option value="">— ninguno —</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cobrado ($)</label>
+            <input type="number" class="form-input" id="edit-importe" placeholder="0" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deuda ($)</label>
+            <input type="number" class="form-input" id="edit-adeuda" placeholder="0" inputmode="numeric">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alquiler ($)</label>
+          <input type="number" class="form-input" id="edit-alquiler" placeholder="400000" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observación</label>
+          <input type="text" class="form-input" id="edit-obs" placeholder="Ej: se fue, nuevo inquilino...">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <button class="btn-primary" onclick="guardarEstado()" style="margin-top:0">✓ GUARDAR</button>
+          <button class="btn-primary" onclick="cancelarEdicion()" style="margin-top:0;background:var(--surface);color:var(--muted);border:1px solid var(--border)">CANCELAR</button>
+        </div>
+      </div>
     </div>
     <!-- GASTOS -->
     <div class="admin-section" id="admin-gastos-adm">
@@ -424,7 +515,7 @@ rDeptosGrid('dash-deptos',d.deptos);}
 
 function rDeptos(d){rDeptosGrid('deptos-grid',d.deptos);document.getElementById('deptos-tbody').innerHTML=d.deptos.map(dep=>{const est=getEstado(dep);return`<tr><td><strong>${dep.n}</strong></td><td>${typeof dep.alquiler==='number'?fmtNum(dep.alquiler):'—'}</td><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${dep.fecha||'—'}</td><td class="${typeof dep.importe==='number'&&dep.importe>0?'ok-amount':''}">${typeof dep.importe==='number'&&dep.importe>0?fmtNum(dep.importe):'—'}</td><td class="${dep.adeuda&&dep.adeuda!=='-'&&dep.adeuda>0?'deuda-amount':''}">${dep.adeuda&&dep.adeuda!=='-'&&dep.adeuda>0?fmtNum(dep.adeuda):'—'}</td><td>${destBadge(dep.dest)||'—'}</td><td><span class="badge ${est.cls}">${est.label}</span></td></tr>`;}).join('');}
 
-function rGastos(d){const g=d.resumen.gastos;const mes=currentMonth.charAt(0)+currentMonth.slice(1).toLowerCase();document.getElementById('gastos-mes-label').textContent='Gastos — '+mes;const items=[{name:'Luz',amount:g.luz},{name:'AYSA',amount:g.aysa,note:'cargo Marcelo'},{name:'Imp. Muni',amount:g.impMuni,note:'cargo Marcelo'},{name:'Limpieza',amount:g.limpieza},{name:'Pago Lourdes',amount:g.lourdes},{name:'Gastos c/factura',amount:g.gastosFact},{name:'Gastos s/factura',amount:g.gastosSFact},{name:'Mantenimiento',amount:g.mantenimiento},{name:'Dev. Depósito',amount:g.devDeposito}].filter(x=>x.amount&&x.amount>0);document.getElementById('gastos-list').innerHTML=items.map(i=>`<div class="expense-row"><div><div class="expense-name">${i.name}</div>${i.note?`<div class="expense-note">${i.note}</div>`:''}</div><div class="expense-amount">${fmtNum(i.amount)}</div></div>`).join('');
+function rGastos(d){const g=d.resumen.gastos;const mes=currentMonth.charAt(0)+currentMonth.slice(1).toLowerCase();document.getElementById('gastos-mes-label').textContent='Gastos — '+mes;const items=[{name:'Luz / Edenor',amount:g.luz,note:'cargo Marcelo'},{name:'AYSA',amount:g.aysa,note:'cargo Marcelo'},{name:'Imp. Muni',amount:g.impMuni,note:'cargo Marcelo'},{name:'Limpieza',amount:g.limpieza},{name:'Pago Lourdes',amount:g.lourdes},{name:'Gastos c/factura',amount:g.gastosFact},{name:'Gastos s/factura',amount:g.gastosSFact},{name:'Mantenimiento',amount:g.mantenimiento},{name:'Dev. Depósito',amount:g.devDeposito}].filter(x=>x.amount&&x.amount>0);document.getElementById('gastos-list').innerHTML=items.map(i=>`<div class="expense-row"><div><div class="expense-name">${i.name}</div>${i.note?`<div class="expense-note">${i.note}</div>`:''}</div><div class="expense-amount">${fmtNum(i.amount)}</div></div>`).join('');
 const meses=['ENERO','FEBRERO','MARZO'];const maxG=Math.max(...meses.map(m=>DATA[m].resumen.totalGastos));document.getElementById('gastos-evol').innerHTML=meses.map(m=>`<div class="bar-row"><div class="bar-label">${m.substring(0,3)}</div><div class="bar-track"><div class="bar-fill" style="width:${(DATA[m].resumen.totalGastos/maxG*100).toFixed(0)}%;background:var(--accent3)"></div></div><div class="bar-val">${fmtNum(DATA[m].resumen.totalGastos)}</div></div>`).join('');
 const tG=d.resumen.totalGastos;document.getElementById('gastos-stats').innerHTML=`<div class="stat-card red"><div class="stat-label">Luz</div><div class="stat-value red">${fmtNum(g.luz)}</div><div class="stat-meta">${((g.luz||0)/tG*100).toFixed(1)}% del total</div></div><div class="stat-card gold"><div class="stat-label">Lourdes</div><div class="stat-value gold">${fmtNum(g.lourdes)}</div><div class="stat-meta">${((g.lourdes||0)/tG*100).toFixed(1)}% del total</div></div>`;}
 
@@ -455,7 +546,7 @@ function registrarPago(){const mes=document.getElementById('pago-mes').value;con
 
 function registrarGasto(){const mes=document.getElementById('gasto-mes').value;const tipo=document.getElementById('gasto-tipo').value;const importe=parseInt(document.getElementById('gasto-importe').value);const nota=document.getElementById('gasto-nota').value;const otroD=document.getElementById('gasto-otro-desc').value;if(!importe||importe<=0){showToast('Importe inválido',true);return;}if(tipo!=='otro')DATA[mes].resumen.gastos[tipo]=(DATA[mes].resumen.gastos[tipo]||0)+importe;DATA[mes].resumen.totalGastos+=importe;DATA[mes].resumen.saldoDelMes=DATA[mes].resumen.cobrado-DATA[mes].resumen.totalGastos;const lc=calcLiq(mes,DATA[mes].resumen);Object.keys(DATA[mes].resumen.liq).forEach(s=>{DATA[mes].resumen.liq[s].liq=lc[s];});saveData();addHist({tipo:'gasto',desc:`Gasto: ${tipo==='otro'?otroD:tipo}${nota?' — '+nota:''}`,amount:-importe,mes});document.getElementById('gasto-importe').value='';document.getElementById('gasto-nota').value='';document.getElementById('gasto-otro-desc').value='';rGastosLog();renderAll();showToast(`✓ Gasto ${fmtNum(importe)} registrado`);}
 
-function agregarMes(){const mes=document.getElementById('config-mes-nuevo').value;if(DATA[mes]){showToast('Ese mes ya existe',true);return;}const modelo=JSON.parse(JSON.stringify(DATA['MARZO']));modelo.deptos.forEach(d=>{d.importe=0;d.fecha='';d.adeuda='-';d.dest='';d.obs='';d.estado='';});modelo.resumen.cobrado=0;modelo.resumen.totalGastos=0;modelo.resumen.saldoDelMes=0;Object.keys(modelo.resumen.gastos).forEach(k=>{modelo.resumen.gastos[k]=0;});Object.values(modelo.resumen.liq).forEach(v=>{v.cobrado=0;v.liq=0;v.resto=0;});DATA[mes]=modelo;const pills=document.querySelector('.month-pills');const btn=document.createElement('button');btn.className='month-pill';btn.textContent=mes.substring(0,3);btn.onclick=function(){setMonth(mes,this);};pills.appendChild(btn);['pago-mes','gasto-mes','config-alq-mes'].forEach(id=>{const sel=document.getElementById(id);if(sel){const o=document.createElement('option');o.value=mes;o.textContent=mes.charAt(0)+mes.slice(1).toLowerCase();sel.appendChild(o);}});saveData();addHist({tipo:'nota',desc:`Mes ${mes} agregado`,amount:0,mes});showToast(`✓ Mes ${mes} agregado`);}
+function agregarMes(){const mes=document.getElementById('config-mes-nuevo').value;if(DATA[mes]){showToast('Ese mes ya existe',true);return;}const modelo=JSON.parse(JSON.stringify(DATA['MARZO']));modelo.deptos.forEach(d=>{d.importe=0;d.fecha='';d.adeuda='-';d.dest='';d.obs='';d.estado='';});modelo.resumen.cobrado=0;modelo.resumen.totalGastos=0;modelo.resumen.saldoDelMes=0;Object.keys(modelo.resumen.gastos).forEach(k=>{modelo.resumen.gastos[k]=0;});Object.values(modelo.resumen.liq).forEach(v=>{v.cobrado=0;v.liq=0;v.resto=0;});DATA[mes]=modelo;const pills=document.querySelector('.month-pills');const btn=document.createElement('button');btn.className='month-pill';btn.textContent=mes.substring(0,3);btn.onclick=function(){setMonth(mes,this);};pills.appendChild(btn);['pago-mes','gasto-mes','config-alq-mes','est-mes'].forEach(id=>{const sel=document.getElementById(id);if(sel){const o=document.createElement('option');o.value=mes;o.textContent=mes.charAt(0)+mes.slice(1).toLowerCase();sel.appendChild(o);}});saveData();addHist({tipo:'nota',desc:`Mes ${mes} agregado`,amount:0,mes});showToast(`✓ Mes ${mes} agregado`);}
 
 function actualizarAlquiler(){const dep=document.getElementById('config-depto-alq').value;const alq=parseInt(document.getElementById('config-nuevo-alq').value);const mes=document.getElementById('config-alq-mes').value;if(!alq||alq<=0){showToast('Alquiler inválido',true);return;}if(DATA[mes]){const d=DATA[mes].deptos.find(x=>x.n===dep);if(d)d.alquiler=alq;}saveData();addHist({tipo:'nota',desc:`Alquiler ${dep} → ${fmtNum(alq)}`,amount:0,mes});renderAll();showToast(`✓ Alquiler de ${dep} actualizado`);}
 
@@ -465,6 +556,134 @@ function limpiarHistorial(){if(!confirm('¿Limpiar historial?'))return;saveHist(
 function rHistorial(){const h=getHist();const el=document.getElementById('historial-list');if(!el)return;el.innerHTML=h.length?h.map(item=>`<div class="log-item"><div class="log-dot ${item.tipo}"></div><div class="log-info"><div class="log-desc">${item.desc}</div><div class="log-meta">${item.mes} · ${item.ts}</div></div>${item.amount?`<div class="log-amount ${item.amount>0?'pos':'neg'}">${item.amount>0?'+':''}${fmtNum(Math.abs(item.amount))}</div>`:''}</div>`).join(''):'<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px">Sin cambios aún</div>';}
 function rPagosLog(){const h=getHist().filter(x=>x.tipo==='pago').slice(0,5);const el=document.getElementById('pagos-log');if(!el||!h.length)return;el.innerHTML=`<div class="log-title">Últimos pagos</div>`+h.map(i=>`<div class="log-item"><div class="log-dot pago"></div><div class="log-info"><div class="log-desc">${i.desc}</div><div class="log-meta">${i.mes} · ${i.ts}</div></div><div class="log-amount pos">+${fmtNum(i.amount)}</div></div>`).join('');}
 function rGastosLog(){const h=getHist().filter(x=>x.tipo==='gasto').slice(0,5);const el=document.getElementById('gastos-log');if(!el||!h.length)return;el.innerHTML=`<div class="log-title">Últimos gastos</div>`+h.map(i=>`<div class="log-item"><div class="log-dot gasto"></div><div class="log-info"><div class="log-desc">${i.desc}</div><div class="log-meta">${i.mes} · ${i.ts}</div></div><div class="log-amount neg">${fmtNum(Math.abs(i.amount))}</div></div>`).join('');}
+
+
+// ── ESTADOS MANAGEMENT ──────────────────────
+let editingDepto = null;
+let editingMes = null;
+
+function loadEstadosGrid() {
+  const mes = document.getElementById('est-mes').value;
+  const deptos = DATA[mes] ? DATA[mes].deptos : [];
+  
+  // Summary
+  const vacios = deptos.filter(d=>d.estado==='V'||d.estado==='E').length;
+  const deuda  = deptos.filter(d=>d.estado==='D'||(d.adeuda&&d.adeuda!=='-'&&d.adeuda>0)).length;
+  const pagados= deptos.filter(d=>getEstado(d).cls==='pagado').length;
+  const sumEl = document.getElementById('estados-summary');
+  if(sumEl) sumEl.innerHTML = `
+    <div><div class="summary-mini-val" style="color:var(--accent2)">${pagados}</div><div class="summary-mini-label">PAGADOS</div></div>
+    <div><div class="summary-mini-val" style="color:var(--accent3)">${deuda}</div><div class="summary-mini-label">DEUDA</div></div>
+    <div><div class="summary-mini-val" style="color:var(--muted)">${vacios}</div><div class="summary-mini-label">VACÍOS</div></div>`;
+
+  const el = document.getElementById('estados-grid-admin');
+  if(!el) return;
+  
+  el.innerHTML = '<div class="est-edit-hint">↓ TOCÁ UN DEPTO PARA EDITAR ↓</div>'
+    + '<div class="estados-grid-adm">'
+    + deptos.map(dep => {
+        const est = getEstado(dep);
+        const isSelected = editingDepto && editingDepto.n === dep.n && editingMes === mes;
+        const destShort = dep.dest && dep.dest !== '-' ? dep.dest.split('/')[0] : '';
+        return `
+          <div class="est-card-adm ${est.cls}${isSelected?' selected':''}" onclick="selectDepto('${dep.n}','${mes}')">
+            <div class="ec-num">${dep.n}</div>
+            <div class="ec-alq">${typeof dep.alquiler==='number'?('$'+Math.round(dep.alquiler/1000)+'k'):'—'}</div>
+            <div class="ec-badge">${
+              est.cls==='pagado' ? (destShort||'OK') :
+              est.cls==='deuda'  ? '⚠ DEUDA' :
+              est.cls==='vacio'  ? 'VACÍO' : '—'
+            }</div>
+          </div>`;
+      }).join('')
+    + '</div>';
+}
+
+function selectDepto(n, mes) {
+  const dep = DATA[mes].deptos.find(d=>d.n===n);
+  if(!dep) return;
+  editingDepto = dep;
+  editingMes   = mes;
+
+  // Fill form
+  document.getElementById('edit-depto-num').textContent = n;
+  document.getElementById('edit-estado').value   = dep.estado || '';
+  document.getElementById('edit-importe').value  = typeof dep.importe==='number' ? dep.importe : '';
+  document.getElementById('edit-adeuda').value   = (dep.adeuda && dep.adeuda!=='-') ? dep.adeuda : '';
+  document.getElementById('edit-alquiler').value = typeof dep.alquiler==='number' ? dep.alquiler : '';
+  document.getElementById('edit-obs').value      = dep.obs || '';
+  
+  // Dest
+  const destVal = (dep.dest||'').toUpperCase();
+  const destSel = document.getElementById('edit-dest');
+  if(destVal.includes('DANI'))       destSel.value = 'DANI';
+  else if(destVal.includes('FEDE'))  destSel.value = 'FEDE';
+  else if(destVal.includes('MACHE')) destSel.value = 'MACHE';
+  else if(destVal.includes('EFECTIVO')) destSel.value = 'EFECTIVO';
+  else destSel.value = '';
+
+  document.getElementById('edit-modal').style.display = 'block';
+  loadEstadosGrid();
+  // Scroll to modal
+  setTimeout(()=>{ document.getElementById('edit-modal').scrollIntoView({behavior:'smooth',block:'nearest'}); },100);
+}
+
+function guardarEstado() {
+  if(!editingDepto || !editingMes) return;
+  const dep = DATA[editingMes].deptos.find(d=>d.n===editingDepto.n);
+  if(!dep) return;
+
+  const nuevoEstado   = document.getElementById('edit-estado').value;
+  const nuevoDest     = document.getElementById('edit-dest').value;
+  const nuevoImporte  = parseInt(document.getElementById('edit-importe').value) || 0;
+  const nuevaAdeuda   = parseInt(document.getElementById('edit-adeuda').value)  || 0;
+  const nuevoAlquiler = parseInt(document.getElementById('edit-alquiler').value) || dep.alquiler;
+  const nuevaObs      = document.getElementById('edit-obs').value;
+
+  // Calcular diferencia de cobrado para actualizar resumen
+  const oldImporte = typeof dep.importe==='number' ? dep.importe : 0;
+  const diffImporte = nuevoImporte - oldImporte;
+
+  dep.estado   = nuevoEstado;
+  dep.dest     = nuevoDest;
+  dep.importe  = nuevoImporte > 0 ? nuevoImporte : dep.importe;
+  dep.adeuda   = nuevaAdeuda > 0 ? nuevaAdeuda : '-';
+  dep.alquiler = nuevoAlquiler;
+  dep.obs      = nuevaObs;
+
+  // Update resumen if importe changed
+  if(diffImporte !== 0) {
+    DATA[editingMes].resumen.cobrado     += diffImporte;
+    DATA[editingMes].resumen.saldoDelMes  = DATA[editingMes].resumen.cobrado - DATA[editingMes].resumen.totalGastos;
+    const lc = calcLiq(editingMes, DATA[editingMes].resumen);
+    Object.keys(DATA[editingMes].resumen.liq).forEach(s=>{ DATA[editingMes].resumen.liq[s].liq=lc[s]; });
+  }
+
+  saveData();
+  addHist({tipo:'nota', desc:`Estado ${dep.n} → ${nuevoEstado||'Ocupado'} | ${nuevoDest||'—'}`, amount:diffImporte||0, mes:editingMes});
+  
+  cancelarEdicion();
+  renderAll();
+  showToast(`✓ Depto ${dep.n} actualizado`);
+}
+
+function cancelarEdicion() {
+  editingDepto = null;
+  document.getElementById('edit-modal').style.display = 'none';
+  loadEstadosGrid();
+}
+
+// Auto-load when switching to estados tab
+const _origSwitchTab = switchTab;
+switchTab = function(tab, el) {
+  _origSwitchTab(tab, el);
+  if(tab === 'estados') {
+    // Sync month
+    const mes = document.getElementById('est-mes');
+    if(mes) mes.value = currentMonth;
+    loadEstadosGrid();
+  }
+};
 
 document.addEventListener('DOMContentLoaded',()=>{loadData();updateDeptoSelect();updateSummary();const today=new Date().toISOString().split('T')[0];document.getElementById('pago-fecha').value=today;document.getElementById('gasto-fecha').value=today;const deptos=DATA['MARZO'].deptos.filter(d=>typeof d.alquiler==='number').map(d=>d.n);document.getElementById('config-depto-alq').innerHTML=deptos.map(d=>`<option value="${d}">${d}</option>`).join('');renderAll();});
 </script>
