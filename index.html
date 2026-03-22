@@ -634,66 +634,6 @@ function toggleOtro(){document.getElementById('gasto-otro-wrap').style.display=d
 
 
 // ── PARTES DE PAGO ────────────────────────────
-let partesCount = 0;
-
-function iniciarPartes() {
-  partesCount = 0;
-  document.getElementById('partes-container').innerHTML = '';
-  agregarParte(); // start with one part
-}
-
-function agregarParte() {
-  partesCount++;
-  const id = partesCount;
-  const div = document.createElement('div');
-  div.className = 'parte-row';
-  div.id = 'parte-' + id;
-  div.innerHTML = `
-    <div class="parte-num">PARTE ${id}</div>
-    ${id > 1 ? `<button class="parte-remove" onclick="eliminarParte(${id})">✕</button>` : ''}
-    <div class="parte-row-inner">
-      <div>
-        <div class="parte-label">Destinatario</div>
-        <select class="form-select" id="parte-dest-${id}" style="font-size:13px;padding:9px 30px 9px 10px">
-          <option value="MACHE">MACHE</option>
-          <option value="DANI">DANI</option>
-          <option value="FEDE">FEDE</option>
-          <option value="EFECTIVO">EFECTIVO</option>
-        </select>
-      </div>
-      <div>
-        <div class="parte-label">Importe ($)</div>
-        <input type="number" class="form-input" id="parte-imp-${id}" placeholder="0" inputmode="numeric" oninput="actualizarTotal()" style="padding:9px 10px">
-      </div>
-    </div>`;
-  document.getElementById('partes-container').appendChild(div);
-  actualizarTotal();
-}
-
-function eliminarParte(id) {
-  const el = document.getElementById('parte-' + id);
-  if(el) el.remove();
-  actualizarTotal();
-}
-
-function actualizarTotal() {
-  let total = 0;
-  document.querySelectorAll('[id^="parte-imp-"]').forEach(inp => {
-    total += parseInt(inp.value) || 0;
-  });
-  document.getElementById('pago-total-display').textContent = '$' + total.toLocaleString('es-AR');
-}
-
-function getPartes() {
-  const partes = [];
-  document.querySelectorAll('[id^="parte-imp-"]').forEach(inp => {
-    const num = inp.id.replace('parte-imp-','');
-    const imp = parseInt(inp.value) || 0;
-    const dest = document.getElementById('parte-dest-'+num)?.value || '';
-    if(imp > 0) partes.push({ dest, imp });
-  });
-  return partes;
-}
 
 function toggleParte(n){
   const fields=document.getElementById('fields-'+n);
@@ -971,7 +911,25 @@ switchTab = function(tab, el) {
   }
 };
 
-document.addEventListener('DOMContentLoaded',()=>{loadData();updateDeptoSelect();updateSummary();const today=new Date().toISOString().split('T')[0];document.getElementById('pago-fecha').value=today;document.getElementById('gasto-fecha').value=today;const deptos=DATA['MARZO'].deptos.filter(d=>typeof d.alquiler==='number').map(d=>d.n);document.getElementById('config-depto-alq').innerHTML=deptos.map(d=>`<option value="${d}">${d}</option>`).join('');iniciarPartes();renderAll();});
+document.addEventListener('DOMContentLoaded',()=>{
+  loadData();
+  updateDeptoSelect();
+  updateSummary();
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('pago-fecha').value=today;
+  document.getElementById('gasto-fecha').value=today;
+  const deptos=DATA['MARZO'].deptos.filter(d=>typeof d.alquiler==='number').map(d=>d.n);
+  document.getElementById('config-depto-alq').innerHTML=deptos.map(d=>`<option value="${d}">${d}</option>`).join('');
+  // Forzar página deptos activa y renderizar
+  document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-deptos').classList.add('active');
+  const deptosBtn = document.querySelector('.nav-btn[onclick*="deptos"]');
+  if(deptosBtn) deptosBtn.classList.add('active');
+  document.getElementById('topbar-title').textContent='Departamentos';
+
+  renderAll();
+});
 </script>
 </body>
 </html>
